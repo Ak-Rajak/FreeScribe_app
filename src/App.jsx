@@ -1,20 +1,17 @@
 import { useState } from 'react'
 import './App.css'
+import Header from './components/Header'
+import Homepage from './components/Homepage'
 
 function App() {
 
 
   return (
-    <div className="flex flex-col p-4">
+    <div className="flex flex-col max-w-[1000px] mx-auto w-full">
       <section className="min-h-screen flex flex-col">
-        <header>
-          <h1>Free<span className='text-blue-400'>Scribe</span></h1>
-        </header>
-        <main className='flex-1'>
-
-        </main>
+        <Header/>
+        <Homepage/>
         <footer>
-
         </footer>
       </section>
     </div>
