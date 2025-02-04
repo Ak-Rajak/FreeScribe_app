@@ -2,15 +2,30 @@ import { useState } from 'react'
 import './App.css'
 import Header from './components/Header'
 import Homepage from './components/Homepage'
+import FileDisplay from './components/FileDisplay'
 
 function App() {
+  const[file , setFile] = useState(null)
+  const[audioStream, setAudioStream] = useState(null)
 
+  // boolean check for audioStream
+  const isAudioAvailable = file || audioStream
+
+  // function to used to set the audioStream
+  function handleAudioReset(){
+    setAudioStream(null)
+    setFile(null)
+  }
 
   return (
     <div className="flex flex-col max-w-[1000px] mx-auto w-full">
       <section className="min-h-screen flex flex-col">
         <Header/>
-        <Homepage/>
+        {isAudioAvailable ? ( 
+            <FileDisplay handleAudioReset={handleAudioReset} file={file} audioStream={setAudioStream} />
+        ) : (
+          <Homepage setFile = {setFile} setAudioStream={setAudioStream}/>
+        )}
         <footer>
         </footer>
       </section>
