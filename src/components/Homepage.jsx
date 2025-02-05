@@ -58,11 +58,17 @@ export default function Homepage(props) {
     }
   }
 
+  // useffect for recording the audio length count 
+  useEffect(() => {
+    if (recordingStatus === "inactive") {return}
+    const interval = setInterval(() => {
+      setDuration( prev => prev + 1);
+    }, 1000);
 
+    return () => clearInterval(interval);
+  });
 
-
-
-
+  
   return (
     <main className="flex-1 p-4 flex flex-col gap-3 text-center sm:gap-4 md:gap-6 justify-center pb-20">
       <h1 className="font-semibold text-5xl sm:text-6xl md:text-7xl">
