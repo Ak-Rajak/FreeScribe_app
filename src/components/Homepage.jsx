@@ -1,4 +1,5 @@
 import React , { useState, useEffect, useRef } from "react";
+import FileDisplay from "./FileDisplay";
 
 
 export default function Homepage(props) {
@@ -31,6 +32,7 @@ export default function Homepage(props) {
 
     mediaRecorder.current = media;
     mediaRecorder.current.start();
+
     let localAudioChunks = [] ;
     mediaRecorder.current.ondataavailable = (events) =>{
        if(typeof events.data === 'undefined'){
@@ -39,7 +41,7 @@ export default function Homepage(props) {
        if (events.data.size === 0){
          return
        }
-       localAudioChunks.push(event.data)
+       localAudioChunks.push(events.data)
       }
       setAudioChunks(localAudioChunks)
   }
@@ -49,9 +51,10 @@ export default function Homepage(props) {
     // Stopping function 
     setRecordingStatus("inactive");
     console.log('Stop Recoding')
+    if (!mediaRecorder.current) return;
     // Blob
     mediaRecorder.current.stop();
-    mediaRecorder.current.onStop = () => {
+    mediaRecorder.current.onstop = () => {
       const audioBlob = new Blob(audioChunks, { type: mimeType });
       setAudioStream(audioBlob);
       setAudioChunks([]);
@@ -61,13 +64,13 @@ export default function Homepage(props) {
 
   // useffect for recording the audio length count 
   useEffect(() => {
-    if (recordingStatus === "inactive") {return}
+    if (recordingStatus === "inactive") {return;}
     const interval = setInterval(() => {
       setDuration( prev => prev + 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  });
+  } , [recordingStatus]);
 
   
   return (
@@ -85,7 +88,7 @@ export default function Homepage(props) {
           {duration !== 0 && (
             <p className="text-sm">{duration}s</p>
           )}
-        <i className={"fa-solid duration-200 fa-microphone " + (recordingStatus === 'recording' ? 'text-rose-300': '')}></i>
+        <i className={"fa-solid duration-200 fa-microphone " + (recordingStatus === 'recording' ? 'text-rose-300': "")}></i>
         </div>
       </button>
       <p className="text-base ">
