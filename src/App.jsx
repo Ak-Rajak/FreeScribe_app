@@ -1,4 +1,4 @@
-import { useState , useEffect } from 'react'
+import { useState , useRef , useEffect} from 'react'
 import './App.css'
 import Header from './components/Header'
 import Homepage from './components/Homepage'
@@ -9,8 +9,9 @@ import Transcribing from './components/Transcribing'
 function App() {
   const[file , setFile] = useState(null)
   const[audioStream, setAudioStream] = useState(null)
-  const [output,setOuput] = useState(true)
+  const [output,setOuput] = useState(null)
   const [loading , setLoading] = useState(false)
+  const [finished , setFinished] = useState(false)
 
   // boolean check for audioStream
   const isAudioAvailable = file || audioStream
@@ -21,9 +22,15 @@ function App() {
     setAudioStream(null)
   }
 
+  // This is useRef for ml code running in the background
+  const worker = useRef(null)
+
+  // useEffect for the worker used ml code to execute
   useEffect(() => {
-    console.log(audioStream)
-  } , [audioStream])
+    if (!worker.current) {
+      worker.current = new Worker(new URL('./'))
+    }
+  }, [])
 
   return (
     <div className="flex flex-col max-w-[1000px] mx-auto w-full">
