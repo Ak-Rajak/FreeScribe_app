@@ -11,6 +11,7 @@ function App() {
   const[audioStream, setAudioStream] = useState(null)
   const [output,setOuput] = useState(null)
   const [loading , setLoading] = useState(false)
+  const [downloading , setDownloading] = useState(false)
   const [finished , setFinished] = useState(false)
 
   // boolean check for audioStream
@@ -28,9 +29,61 @@ function App() {
   // useEffect for the worker used ml code to execute
   useEffect(() => {
     if (!worker.current) {
-      worker.current = new Worker(new URL('./'))
+      worker.current = new Worker(new URL('./utils/whisper.worker.js', import.meta.url) , { type: 'module' })
     }
+
+    // function used to handle the communication between the main application and web work thread
+    const onMessageReceived = async (e) => {
+      switch (e.data.type){
+        case 'DOWNLOADING':
+          setDownloading(true)
+          console.log('DOWNLOADING')
+          break;
+        case 'LOADING':
+          setLoading(true)
+          console.log('LOADING')
+          break;
+        case 'RESULT':
+          setOuput(e.data.results)
+          break;
+        case 'INFERENCE_DONE':
+          setDownloading(true)
+          console.log("DONE")
+          break;
+      }
+    }
+
+    // this is used to add event listener to the worker for the message event
+    worker.current.addEventListener('message', onMessageReceived)
+
+    return () => 
+      worker.current.removeEventListener('message', onMessageReceived)
+
   }, [])
+
+  // Function to read audio from the files for transcription and return 
+  async function readAudioFrom(file){
+    const sampling_rate = 16000
+    const audioCTX = new AudioContext({sampleRate: sampling_rate})
+    const response = await file.arrayBuffer()
+    const decoded = await audioCTX.decodeAudioData(response)
+    const audio = decoded.getChanneData(0)
+    return audio 
+  }
+
+  // Function to handle the form submission for the audio file
+  async function handleFormSubmission(){
+    if (!file && !audioStream) {return}
+
+    let audio = await readAudioFrom(file ? file : audioStream)
+    const model_name = `openai/whisper-tiny.en`
+
+    worker.current.postMessage({
+      type: MessageTypes.INFERENCE_REQUEST,
+      audio,
+      model_name
+    })
+  }
 
   return (
     <div className="flex flex-col max-w-[1000px] mx-auto w-full">
