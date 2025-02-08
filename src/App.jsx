@@ -9,7 +9,7 @@ import Transcribing from './components/Transcribing'
 function App() {
   const[file , setFile] = useState(null)
   const[audioStream, setAudioStream] = useState(null)
-  const [output,setOuput] = useState(null)
+  const [output,setOuput] = useState(true)
   const [loading , setLoading] = useState(false)
 
   // boolean check for audioStream
