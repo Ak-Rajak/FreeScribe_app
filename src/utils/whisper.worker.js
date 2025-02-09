@@ -1,4 +1,5 @@
 import { pipeline } from "@xenova/transformers";
+import { MessageTypes } from './presets'
 
 class MyTranscriptionPipeline {
     static task = 'automatoc-speech-recognition';
@@ -20,3 +21,67 @@ self.addEventListener('message', async (event) => {
     }
 })
 
+async function transcribe(audio) {
+    sendLoadingMessage('loading')
+
+    let pipeline 
+
+    try {
+        pipeline = await MyTranscriptionPipeline.getInstance(load_model_callback)
+    }catch(err) {
+        console.error(err.message)
+    }
+
+    sendLoadingMessage('success')
+
+    const stride_length_s = 5
+
+    const generationTracker = new GenerationTracker(pipeline , stride_length_s)
+    await pipeline(audio, {
+        top_k:0,
+        do_sample: false,
+        chunk_length: 30, 
+        stride_length_s,
+        return_timestamps: true,
+        callback_function: generationTracker.callbackFunction.bind(generationTracker),
+        chunk_callback: generationTracker.chunkCallback.bind(generationTracker)
+    })
+    generationTracker.sendFinalResult()
+     
+}
+
+async function load_model_callback(data){
+    const {status} = data
+    if (status === 'progress') {
+        const {file, progress , loaded, total} = data
+        sendDownloadingMessage(file , progress, loaded, total)
+    }
+}
+
+function sendLoadingMessage(status) {
+    self.postMessage({
+        type: MessageTypes.LOADING,
+        status
+    })
+}
+
+async function sendDownloadingMessage(file, progress, loaded, total) {
+    self.postMessage({
+        type: MessageTypes.DOWNLOADING,
+        file,
+        progress,
+        loaded,
+        total
+    })
+}
+
+class GenerationTracker {
+    constructor(pipeline, stride_length_s) {
+        this.pipeline = pipeline
+        this.stride_length_s = stride_length_s
+        this.chunks = []
+        this.time_precision= pipeline?.processor.feature_extractor.config.chunk_length / pipeline.model.config.max_source_positions
+        this.processed_chunks = []
+        this.callbackFunctionCounter = 0
+    }
+}
