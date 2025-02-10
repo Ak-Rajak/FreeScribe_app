@@ -5,6 +5,7 @@ import Homepage from './components/Homepage'
 import FileDisplay from './components/FileDisplay'
 import Information from './components/Information'
 import Transcribing from './components/Transcribing'
+import { MessageTypes } from './utils/presets'
 
 function App() {
   const[file , setFile] = useState(null)
@@ -45,11 +46,14 @@ function App() {
           break;
         case 'RESULT':
           setOuput(e.data.results)
+          console.log(e.data.results)
           break;
         case 'INFERENCE_DONE':
           setDownloading(true)
           console.log("DONE")
           break;
+        default:
+          console.error('Unknown message type:', e.data.type);
       }
     }
 
@@ -67,7 +71,7 @@ function App() {
     const audioCTX = new AudioContext({sampleRate: sampling_rate})
     const response = await file.arrayBuffer()
     const decoded = await audioCTX.decodeAudioData(response)
-    const audio = decoded.getChanneData(0)
+    const audio = decoded.getChannelData(0)
     return audio 
   }
 
@@ -94,7 +98,7 @@ function App() {
         ) : loading ? (
           <Transcribing/>
         ) : isAudioAvailable ? (
-          <FileDisplay handleAudioReset={handleAudioReset} file={file} audioStream={audioStream}/>
+          <FileDisplay handleFormSubmission={handleFormSubmission} handleAudioReset={handleAudioReset} file={file} audioStream={audioStream}/>
         ) : (
           <Homepage setFile={setFile} setAudioStream={setAudioStream}/>
         )}
