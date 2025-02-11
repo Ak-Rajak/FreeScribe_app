@@ -1,7 +1,10 @@
 import React from 'react'
 
-export default function Transcription() {
+export default function Transcription(props) {
+  const { output } = props
+  console.log(output)
+
   return (
-    <div>Transcription</div>
+    <div className=''>{output}</div>
   )
 }
