@@ -10,7 +10,7 @@ import { MessageTypes } from './utils/presets'
 function App() {
   const[file , setFile] = useState(null)
   const[audioStream, setAudioStream] = useState(null)
-  const [output,setOuput] = useState(null)
+  const [output,setOuput] = useState(true)
   const [loading , setLoading] = useState(false)
   const [downloading , setDownloading] = useState(false)
   const [finished , setFinished] = useState(false)
@@ -49,7 +49,7 @@ function App() {
           console.log(e.data.results)
           break;
         case 'INFERENCE_DONE':
-          setDownloading(true)
+          setFinished(true)
           console.log("DONE")
           break;
         default:
@@ -94,7 +94,7 @@ function App() {
       <section className="min-h-screen flex flex-col">
         <Header/>
         {output ? (
-          <Information/>
+          <Information output={output} finished={finished}/>
         ) : loading ? (
           <Transcribing/>
         ) : isAudioAvailable ? (
