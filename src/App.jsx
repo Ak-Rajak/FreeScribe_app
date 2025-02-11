@@ -10,7 +10,7 @@ import { MessageTypes } from './utils/presets'
 function App() {
   const[file , setFile] = useState(null)
   const[audioStream, setAudioStream] = useState(null)
-  const [output,setOuput] = useState(true)
+  const [output,setOuput] = useState(null)
   const [loading , setLoading] = useState(false)
   const [downloading , setDownloading] = useState(false)
   const [finished , setFinished] = useState(false)

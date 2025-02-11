@@ -1,10 +1,9 @@
 import React from 'react'
 
 export default function Transcription(props) {
-  const { output } = props
-  console.log(output)
+  const { textElement } = props
 
   return (
-    <div className=''>{output}</div>
+    <div className=''>{textElement}</div>
   )
 }
