@@ -10,7 +10,7 @@ import { MessageTypes } from './utils/presets'
 function App() {
   const[file , setFile] = useState(null)
   const[audioStream, setAudioStream] = useState(null)
-  const [output,setOuput] = useState(true)
+  const [output,setOuput] = useState(null)
   const [loading , setLoading] = useState(false)
   const [downloading , setDownloading] = useState(false)
   const [finished , setFinished] = useState(false)
@@ -30,7 +30,7 @@ function App() {
   // useEffect for the worker used ml code to execute
   useEffect(() => {
     if (!worker.current) {
-      worker.current = new Worker(new URL('./utils/whisper.worker.js', import.meta.url) , { type: 'module' })
+      worker.current = new Worker(new URL('../utils/whisper.worker.js', import.meta.url) , { type: 'module' })
     }
 
     // function used to handle the communication between the main application and web work thread

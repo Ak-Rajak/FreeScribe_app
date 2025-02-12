@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect , useRef } from 'react'
 import Transcription from './Transcription'
 import Translation from './Translation'
 
@@ -11,17 +11,55 @@ export default function Information(props) {
 
   console.log(output)
 
+  const worker = useRef(null)
+
+  useEffect(() => {
+    if (!worker.current) {
+      worker.current = new Worker(new URL('../utils/translate.worker.js', import.meta.url) , { type: 'module' })
+    }
+
+    // function used to handle the communication between the main application and web work thread
+    const onMessageReceived = async (e) => {
+      switch (e.data.type){
+        case 'initiate':
+          console.log('DOWNLOADING')
+          break;
+        case 'progress':
+          console.log('LOADING')
+          break;
+        case 'update':
+          setTranslation(e.data.output)
+          console.log(e.data.output)
+          break;
+        case 'complete':
+          setTranslating(false)
+          console.log("DONE")
+          break;
+        default:
+          console.error('Unknown message type:', e.data.type);
+      }
+    }
+
+    worker.current.addEventListener('message', onMessageReceived)
+
+    return () => 
+      worker.current.removeEventListener('message', onMessageReceived)
+
+  }, [])
+
+  const textElement = tab === 'transcriptions' ? output.map(val => val.text) : translation || 'No translation'
+
   // function for copy to clipboard
   function handleCopy(){
-    navigator.clipboard.writeText(output)
+    navigator.clipboard.writeText(textElement)
   }
 
   // function for download 
   function handleDownload() {
     const element = document.createElement('a')
-    const file = new Blob([] , {type: 'text/plain'})
+    const file = new Blob([textElement] , {type: 'text/plain'})
     element.href = URL.createObjectURL(file)
-    element.download(`FreeScribe_${(new Date()).toDateString()}.txt`)
+    element.download = `FreeScribe_${new Date().toString()}.txt`
     document.body.appendChild(element)
     document.click()
   }
@@ -33,15 +71,13 @@ export default function Information(props) {
 
     setTranslating(true)
 
-    Worker.current.postMessage({
+    worker.current.postMessage({
       text: output.map(val => val.text),
-      src_language: 'eng-latn',
+      src_lang: 'eng-latn',
       tgt_lang: toLanguage 
     })
 
   }
-
-  const textElement = tab === 'transcriptions' ? output.map(val => val.text) : ''
 
   return (
     <main className="flex-1 p-4 flex flex-col gap-3 text-center sm:gap-4 justify-center pb-20 max-w-prose w-full mx-auto">
