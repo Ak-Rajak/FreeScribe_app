@@ -6,6 +6,7 @@ class MyTranscriptionPipeline {
     static model = 'openai/whisper-tiny.en'
     static instance = null
 
+    // Something wrong is here with the progress_callback
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
           try {
