@@ -19,7 +19,7 @@ class MyTranslationPipeline {
     }
 }
 
-self.addEventListener('message' async (event) => {
+self.addEventListener('message' , async (event) => {
     let translator = await MyTranslationPipeline.getInstance( x => {
         self.postMessage(x);
     })
