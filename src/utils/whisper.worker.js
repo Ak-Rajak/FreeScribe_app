@@ -6,18 +6,12 @@ class MyTranscriptionPipeline {
     static model = 'openai/whisper-tiny.en'
     static instance = null
 
-    // Something wrong is here with the progress_callback
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
-          try {
-            this.instance = await pipeline(this.task, this.model, { progress_callback });
-            return this.instance;
-          } catch (error) {
-            console.error("Error loading model:", error);
-            throw error; // Re-throw the error to be caught in transcribe()
-          }
+            this.instance = await pipeline(this.task, null, { progress_callback })
         }
-        return this.instance;
+
+        return this.instance
     }
 }
 
