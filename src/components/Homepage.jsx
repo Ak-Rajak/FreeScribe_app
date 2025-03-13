@@ -1,15 +1,15 @@
 import React , { useState, useEffect, useRef } from "react";
-import FileDisplay from "./FileDisplay";
 
 
 export default function Homepage(props) {
-  const { setFile, setAudioStream } = props;
+  const { setAudioStream, setFile } = props
 
   const [recordingStatus, setRecordingStatus] = useState("inactive");
   const [audioChunks, setAudioChunks] = useState([]);
   const [duration, setDuration] = useState(0);
 
   const mediaRecorder = useRef(null);
+
   const mimeType = "audio/webm";
 
   // function for enabling the recording
@@ -66,11 +66,11 @@ export default function Homepage(props) {
   useEffect(() => {
     if (recordingStatus === "inactive") {return;}
     const interval = setInterval(() => {
-      setDuration( prev => prev + 1);
+      setDuration( curr => curr + 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  } , [recordingStatus]);
+  });
 
   
   return (
